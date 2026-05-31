@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Testing API Connection</h1>
+    <div id="status">Testing...</div>
+    <div id="result"></div>
+    
+    <script>
+        async function testAPI() {
+            const statusDiv = document.getElementById('status');
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                statusDiv.innerHTML = 'Fetching products from http://localhost:5000/api/products...';
+                const response = await fetch('http://localhost:5000/api/products');
+                statusDiv.innerHTML = `Response status: ${response.status}`;
+                
+                if (response.ok) {
+                    const products = await response.json();
+                    resultDiv.innerHTML = `Success! Found ${products.length} products.<br>`;
+                    resultDiv.innerHTML += `First product: ${products[0]?.name || 'None'}`;
+                } else {
+                    resultDiv.innerHTML = `Error: ${response.status} ${response.statusText}`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = 'Error!';
+                resultDiv.innerHTML = `Error details: ${error.message}<br><br>
+                    Make sure backend is running on port 5000:<br>
+                    1. Open terminal in backend folder<br>
+                    2. Run: npm run dev<br>
+                    3. Should see "Server running on port 5000"`;
+            }
+        }
+        
+        testAPI();
+    </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        pre { background: #f4f4f4; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Testing API Connection</h1>
+    <div id="status">Testing...</div>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const statusDiv = document.getElementById('status');
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                statusDiv.innerHTML = 'Testing connection to http://localhost:5000/api/test...';
+                const testResponse = await fetch('http://localhost:5000/api/test');
+                
+                if (testResponse.ok) {
+                    const testData = await testResponse.json();
+                    statusDiv.innerHTML = '<span class="success">✓ Server is connected!</span>';
+                    resultDiv.innerHTML += `<p>Test response: ${JSON.stringify(testData)}</p>`;
+                    
+                    // Now fetch products
+                    statusDiv.innerHTML = 'Fetching products...';
+                    const productsResponse = await fetch('http://localhost:5000/api/products');
+                    const products = await productsResponse.json();
+                    
+                    resultDiv.innerHTML += `<p><strong>Found ${products.length} products:</strong></p>`;
+                    resultDiv.innerHTML += '<pre>' + JSON.stringify(products, null, 2) + '</pre>';
+                    
+                    statusDiv.innerHTML = '<span class="success">✓ Success! API is working correctly!</span>';
+                } else {
+                    statusDiv.innerHTML = '<span class="error">✗ Server responded with error</span>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="error">✗ Cannot connect to server!</span>';
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <p>Error: ${error.message}</p>
+                        <p>Please make sure:</p>
+                        <ul>
+                            <li>Backend server is running (you should see "Server is running!" in the terminal)</li>
+                            <li>Run this command in backend folder: <strong>node mini-server.js</strong></li>
+                            <li>The terminal shows "Server is running on port 5000"</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+        
+        testAPI();
+    </script>
+</body>
+</html>
