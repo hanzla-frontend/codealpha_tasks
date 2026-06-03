@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>SocialSphere - Connect with Friends</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Additional styles for modals and loading */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .stat-updated {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); color: inherit; }
+            50% { transform: scale(1.2); color: #1877f2; }
+            100% { transform: scale(1); color: inherit; }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #65676b;
+        }
+
+        .loading i {
+            margin-right: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .retry-btn {
+            margin-top: 15px;
+            padding: 8px 20px;
+            background: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .create-post-btn {
+            margin-top: 15px;
+            padding: 10px 24px;
+            background: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar" id="navbar" style="display: none;">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-globe"></i>
+                <span>SocialSphere</span>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active" data-page="feed">
+                    <i class="fas fa-home"></i>
+                    <span>Feed</span>
+                </a>
+                <a href="#" class="nav-link" data-page="explore">
+                    <i class="fas fa-compass"></i>
+                    <span>Explore</span>
+                </a>
+                <a href="#" class="nav-link" data-page="profile">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </div>
+            <div class="nav-right">
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container" id="container">
+        <!-- Auth Section -->
+        <div id="authSection" class="auth-section">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <i class="fas fa-globe"></i>
+                        <h1>SocialSphere</h1>
+                        <p>Connect, Share, and Discover</p>
+                    </div>
+                    
+                    <!-- Login Form -->
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="loginEmail" placeholder="Email address" required>
+                        </div>
+                        <div class="form-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="loginPassword" placeholder="Password" required>
+                        </div>
+                        <button type="submit" class="auth-btn">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                    </form>
+
+                    <div class="auth-divider">
+                        <hr>
+                        <span>New to SocialSphere?</span>
+                        <hr>
+                    </div>
+
+                    <!-- Register Form -->
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="regUsername" placeholder="Username" required>
+                        </div>
+                        <div class="form-group">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="regEmail" placeholder="Email address" required>
+                        </div>
+                        <div class="form-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="regPassword" placeholder="Password" required>
+                        </div>
+                        <div class="form-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="regConfirmPassword" placeholder="Confirm Password" required>
+                        </div>
+                        <button type="submit" class="auth-btn">
+                            <i class="fas fa-user-plus"></i> Register
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App Section -->
+        <div id="appSection" style="display: none;">
+            <!-- Feed Page -->
+            <div id="feedPage" class="page" style="display: block;">
+                <div class="feed-container">
+                    <div class="create-post-card">
+                        <div class="create-post-header">
+                            <img src="https://via.placeholder.com/48" alt="Avatar" class="avatar" id="currentUserAvatar">
+                            <textarea id="postContent" placeholder="What's on your mind?" maxlength="500" rows="3"></textarea>
+                        </div>
+                        <div class="create-post-actions">
+                            <button class="post-btn" id="createPostBtn">
+                                <i class="fas fa-paper-plane"></i> Post
+                            </button>
+                        </div>
+                    </div>
+                    <div id="postsContainer" class="posts-container">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i> Loading posts...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Explore Page -->
+            <div id="explorePage" class="page" style="display: none;">
+                <div class="explore-container">
+                    <h2><i class="fas fa-compass"></i> Discover People</h2>
+                    <div id="usersContainer" class="users-container">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i> Loading users...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profilePage" class="page" style="display: none;">
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <div class="profile-cover"></div>
+                        <div class="profile-info">
+                            <img src="https://via.placeholder.com/120" alt="Profile" class="profile-avatar" id="profileAvatar">
+                            <h2 id="profileUsername">Loading...</h2>
+                            <p id="profileBio" class="profile-bio">Loading bio...</p>
+                            <div class="profile-stats">
+                                <div class="stat">
+                                    <span class="stat-value" id="followersCount">0</span>
+                                    <span class="stat-label">Followers</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-value" id="followingCount">0</span>
+                                    <span class="stat-label">Following</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-value" id="postsCount">0</span>
+                                    <span class="stat-label">Posts</span>
+                                </div>
+                            </div>
+                            <button class="edit-profile-btn" id="editProfileBtn">
+                                <i class="fas fa-edit"></i> Edit Profile
+                            </button>
+                        </div>
+                    </div>
+                    <div id="userPostsContainer" class="posts-container">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i> Loading your posts...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
+            <form id="editProfileForm">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="editUsername" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-info-circle"></i> Bio</label>
+                    <textarea id="editBio" rows="3" maxlength="200" placeholder="Tell something about yourself..."></textarea>
+                    <small>Max 200 characters</small>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-image"></i> Avatar URL</label>
+                    <input type="text" id="editAvatar" placeholder="Enter image URL">
+                    <small>Enter a valid image URL (optional)</small>
+                </div>
+                <button type="submit" class="auth-btn">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Comment Modal -->
+    <div id="commentModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2><i class="fas fa-comments"></i> Comments</h2>
+            <div id="commentsList" class="comments-list">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading comments...
+                </div>
+            </div>
+            <div class="add-comment">
+                <textarea id="commentText" placeholder="Write a comment..." rows="3" maxlength="200"></textarea>
+                <button id="addCommentBtn" class="post-btn">
+                    <i class="fas fa-paper-plane"></i> Post Comment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/posts.js"></script>
+    <script src="js/comments.js"></script>
+    <script src="js/follow.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        // Final initialization and debugging
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOM fully loaded');
+            console.log('Elements check:');
+            console.log('- Edit Profile Button:', document.getElementById('editProfileBtn'));
+            console.log('- Edit Modal:', document.getElementById('editProfileModal'));
+            console.log('- Profile Container:', document.getElementById('profilePage'));
+            
+            // Ensure modal is hidden initially
+            const modal = document.getElementById('editProfileModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+        });
+    </script>
+</body>
+</html>
